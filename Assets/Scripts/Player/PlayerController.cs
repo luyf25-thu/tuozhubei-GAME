@@ -1,3 +1,4 @@
+using System.Text;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -15,6 +16,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform groundCheck;
     [SerializeField] private float groundCheckRadius = 0.2f;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private bool enableGroundDebug;
     
     [Header("组件引用")]
     [SerializeField] private Rigidbody2D rb;
@@ -60,6 +62,30 @@ public class PlayerController : MonoBehaviour
         if (groundCheck != null)
         {
             isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+
+            if (enableGroundDebug && isGrounded != wasGrounded)
+            {
+                Collider2D[] hits = Physics2D.OverlapCircleAll(groundCheck.position, groundCheckRadius, groundLayer);
+                StringBuilder log = new StringBuilder();
+                log.AppendLine($"Grounded change: {wasGrounded} -> {isGrounded}");
+                log.AppendLine($"GroundCheck pos={groundCheck.position} radius={groundCheckRadius} layerMask={groundLayer.value}");
+
+                if (hits.Length == 0)
+                {
+                    log.AppendLine("Hits: (none)");
+                }
+                else
+                {
+                    log.AppendLine("Hits:");
+                    foreach (Collider2D hit in hits)
+                    {
+                        string layerName = LayerMask.LayerToName(hit.gameObject.layer);
+                        log.AppendLine($"- {hit.name} (layer {layerName})");
+                    }
+                }
+
+                Debug.Log(log.ToString(), this);
+            }
         }
         else
         {
@@ -137,6 +163,28 @@ public class PlayerController : MonoBehaviour
         groundCheckObject.transform.SetParent(transform);
         groundCheckObject.transform.localPosition = new Vector3(0f, -0.5f, 0f);
         groundCheck = groundCheckObject.transform;
+    }
+
+    [ContextMenu("Recreate GroundCheck")]
+    private void RecreateGroundCheck()
+    {
+        if (groundCheck != null)
+        {
+            if (Application.isPlaying)
+            {
+                Destroy(groundCheck.gameObject);
+            }
+            else
+            {
+                DestroyImmediate(groundCheck.gameObject);
+            }
+        }
+
+        GameObject groundCheckObject = new GameObject("GroundCheck");
+        groundCheckObject.transform.SetParent(transform);
+        groundCheckObject.transform.localPosition = new Vector3(0f, -0.5f, 0f);
+        groundCheck = groundCheckObject.transform;
+        AdjustGroundCheckPosition();
     }
 
     private void AdjustGroundCheckPosition()
