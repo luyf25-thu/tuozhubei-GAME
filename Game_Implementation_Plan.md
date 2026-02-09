@@ -41,7 +41,7 @@
    - 跳跃初速度固定，不受世界影响
    - 在不同世界中，由于重力不同，跳跃弧线和高度会有差异
    - 世界A：正常跳跃弧线
-   - 世界B：较慢的下落，跳得更高更远
+   - 世界B：较慢的下落，跳得更高更远a
 
 3. **世界切换机制**
    - 切换是即时的，零延迟
@@ -54,6 +54,17 @@
    - 切换到世界B
    - 速度仍为10m/s向上，但重力变为0.6倍
    - 结果：会飞得更高
+
+5. **墙面攀爬机制**
+   - 贴墙状态不视为接地（不重置空中冲刺）
+   - 当玩家接触垂直或近似垂直墙体并持续朝墙方向按住移动键时进入贴墙状态
+   - 攀爬距离有限，进入贴墙后记录累计向上位移 `climbDistance`
+   - 攀爬速度随 `climbDistance/maxClimbDistance` 逐步衰减到0
+   - 当攀爬速度到0后，开始向下滑落，滑落速度从 `slideSpeedStart` 缓慢增加到 `slideSpeedMax`
+   - 贴墙期间可跳跃触发墙跳，起跳垂直速度按剩余攀爬距离比例衰减：`jumpScale = clamp01(1 - climbDistance/maxClimbDistance)`
+   - 攀爬距离越长，墙跳高度越低；当比例为0时无法起跳
+   - 墙跳带一个小幅水平离墙分量，便于脱离墙体
+   - 任何离墙、地面接触或停止贴墙输入都会退出贴墙状态并重置 `climbDistance`
 
 ### 冲刺机制
 
@@ -372,6 +383,10 @@ Action Map: `Player`
 - `dashDuration`: 0.2 (冲刺持续时间，秒)
 - `dashCooldown`: 1.5 (冲刺冷却时间，秒)
 - `groundCheckRadius`: 0.2 (地面检测半径)
+- `maxClimbDistance`: 3.5 (最大攀爬距离)
+- `climbSpeedStart`: 4.5 (攀爬初速度)
+- `slideSpeedStart`: 1.0 (滑落初速度)
+- `slideSpeedMax`: 2.5 (滑落最大速度)
 
 ### WorldRules 参数
 

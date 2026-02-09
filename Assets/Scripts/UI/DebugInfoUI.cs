@@ -77,6 +77,7 @@ public class DebugInfoUI : MonoBehaviour
             info += $"状态: {playerController.CurrentState}\n";
             info += $"接地: {(playerController.IsGrounded ? "是" : "否")}\n";
             info += $"冲刺中: {(playerController.IsDashing ? "是" : "否")}\n";
+            info += $"攀爬中: {(playerController.IsWallClinging ? "是" : "否")}\n";
         }
         
         // 位置

@@ -1,0 +1,19 @@
+{
+  "name": "PlayModeTests",
+  "references": [
+    "Game.Runtime"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "testAssemblies": true
+}
