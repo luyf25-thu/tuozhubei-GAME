@@ -18,6 +18,7 @@ public class Hazard : MonoBehaviour
         // 检测是否碰到玩家
         if (other.CompareTag("Player"))
         {
+            Debug.Log($"[Hazard] Hit player. Hazard={name} at {transform.position}, Player={other.name} at {other.transform.position}");
             // 播放音效
             if (audioSource && hitSound)
             {
@@ -27,7 +28,7 @@ public class Hazard : MonoBehaviour
             // 触发玩家死亡
             if (RespawnManager.Instance != null)
             {
-                RespawnManager.Instance.TriggerDeath();
+                RespawnManager.Instance.TriggerDeath($"Hazard:{name}");
             }
             
             // 可选：销毁障碍物

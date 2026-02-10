@@ -83,11 +83,22 @@ No state reset or reinitialization occurs during switching.
   - Move continuously
   - Jump across platforms
   - Make world-switching decisions mid-action
+  - Use wall climbing and wall jumping to traverse vertical routes
 - Levels are designed such that:
   - Certain paths are impossible in a single world
   - Valid solutions emerge only through correct world switching
 
 The game loop assumes that world switching is used frequently and safely.
+
+### 5.1 Wall Climbing & Wall Jumping
+
+- **Wall Cling**: When the player presses toward a near-vertical wall in midair, they can cling and climb.
+- **Limited Climb**: Climb speed decays with climbed distance until it reaches zero; then the player begins sliding down.
+- **Wall Jump**: Jumping while clinging launches away from the wall. Jump height decreases as climb distance increases and can reach zero.
+- **Input Priority**: While clinging, a jump input triggers wall jump immediately even if the player is still holding the climb direction.
+- **Same-Wall Lockout**: After leaving a wall (jumping off, losing contact, or letting go), that same wall is locked out.
+  - Lock clears by touching a different wall first, or by landing, or after a short timer.
+  - This prevents infinite re-climb loops on a single wall.
 
 ---
 

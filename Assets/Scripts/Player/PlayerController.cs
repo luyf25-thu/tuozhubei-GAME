@@ -626,4 +626,31 @@ public class PlayerController : MonoBehaviour
     public bool IsWallClinging => isWallClinging;
     public Collider2D CurrentWallCollider => currentWallCollider;
     public PlayerState CurrentState => currentState;
+    
+    /// <summary>
+    /// 重置冲刺冷却时间并恢复空中冲刺次数
+    /// 用于EchoCrystal_DashReset pickup
+    /// </summary>
+    public void ResetDashCooldown()
+    {
+        dashCooldownTimer = 0f;
+        airDashUsed = false;
+        Debug.Log("[PlayerController] Dash已重置！");
+    }
+    
+    /// <summary>
+    /// 玩家死亡
+    /// 由Hazard等触发
+    /// </summary>
+    public void Die()
+    {
+        if (RespawnManager.Instance != null)
+        {
+            RespawnManager.Instance.TriggerDeath("Player.Die");
+        }
+        else
+        {
+            Debug.LogError("[PlayerController] RespawnManager不存在，无法重生！");
+        }
+    }
 }

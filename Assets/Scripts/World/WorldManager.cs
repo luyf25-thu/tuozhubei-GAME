@@ -23,6 +23,9 @@ public class WorldManager : MonoBehaviour
     
     // 世界切换事件
     public UnityEvent OnWorldSwitched;
+    
+    // 世界切换锁定
+    private bool worldSwitchingLocked = false;
 
     private void Awake()
     {
@@ -62,6 +65,13 @@ public class WorldManager : MonoBehaviour
 
     public void SwitchWorld()
     {
+        // 如果锁定了世界切换，则不允许切换
+        if (worldSwitchingLocked)
+        {
+            Debug.LogWarning("[WorldManager] 世界切换已锁定");
+            return;
+        }
+        
         // 切换世界
         currentWorld = currentWorld == WorldType.WorldA ? WorldType.WorldB : WorldType.WorldA;
         
@@ -69,6 +79,17 @@ public class WorldManager : MonoBehaviour
         OnWorldSwitched?.Invoke();
         
         Debug.Log($"切换到世界: {currentWorld}");
+    }
+
+    public void SwitchWorld(WorldType targetWorld)
+    {
+        // 强制切换到指定世界（忽略锁定）
+        if (currentWorld != targetWorld)
+        {
+            currentWorld = targetWorld;
+            OnWorldSwitched?.Invoke();
+            Debug.Log($"[WorldManager] 强制切换到世界: {currentWorld}");
+        }
     }
 
     public void SetWorld(WorldType world)
@@ -83,5 +104,22 @@ public class WorldManager : MonoBehaviour
     public Color GetCurrentWorldColor()
     {
         return GetCurrentRules().worldColor;
+    }
+    
+    /// <summary>
+    /// 锁定或解锁世界切换
+    /// </summary>
+    public void LockWorldSwitching(bool locked)
+    {
+        worldSwitchingLocked = locked;
+        Debug.Log($"[WorldManager] 世界切换 {(locked ? "已锁定" : "已解锁")}");
+    }
+    
+    /// <summary>
+    /// 检查世界切换是否被锁定
+    /// </summary>
+    public bool IsWorldSwitchingLocked()
+    {
+        return worldSwitchingLocked;
     }
 }

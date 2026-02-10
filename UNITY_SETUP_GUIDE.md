@@ -5,7 +5,7 @@
 所有 C# 脚本已创建完成，当前包含以下脚本：
 
 ### 玩家系统 (Assets/Scripts/Player/)
-- ✅ PlayerController.cs - 移动、跳跃、冲刺、地面检测
+- ✅ PlayerController.cs - 移动、跳跃、冲刺、地面检测、攀爬与墙跳
 - ✅ PlayerWorldSwitcher.cs - 世界切换与物理参数更新
 - ✅ DashEffect.cs - 冲刺拖尾与粒子特效
 
@@ -98,6 +98,16 @@
    - Ground Check: 拖入 `GroundCheck`
    - Ground Check Radius: 0.2
    - Ground Layer: 选择 `WorldA`、`WorldB`
+   - Max Climb Distance: 3.5
+   - Climb Speed Start: 4.5
+   - Slide Speed Start: 1.0
+   - Slide Speed Max: 2.5
+   - Climb Distance Epsilon: 0.05
+   - Wall Check Distance: 0.1（实际会自动取更大值）
+   - Wall Check Height: 1.0
+   - Wall Jump Horizontal Speed: 4.0
+   - Wall Jump Vertical Multiplier: 1.4
+   - Wall Lock Duration: 1.0
    - Jump Sound / Dash Sound: 可选
 
 6. 配置 PlayerWorldSwitcher：
@@ -202,6 +212,7 @@
 1. 创建 `Text`，命名 `DebugInfo`
 2. 位置：右上角
 3. 添加 `DebugInfoUI` 脚本
+4. 调试信息会显示攀爬状态（攀爬中：是/否）
 
 ### 步骤10：创建测试场景
 
@@ -245,6 +256,9 @@
 - [ ] 鼠标右键冲刺
 - [ ] 冲刺冷却生效
 - [ ] 空中冲刺一次，落地重置
+- [ ] 贴墙攀爬、攀爬耗尽后滑落
+- [ ] 墙跳高度随攀爬距离衰减
+- [ ] 同墙锁定生效（不能在同一墙反复攀爬）
 - [ ] 碰到障碍物死亡
 - [ ] 触发检查点后重生位置更新
 - [ ] R 键快速重生

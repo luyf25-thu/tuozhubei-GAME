@@ -39,10 +39,13 @@ public class Checkpoint : MonoBehaviour
     {
         isActivated = true;
         
-        // 通知重生管理器
+        // 通知重生管理器 - 设置偏移后的重生点（避免重生在 Checkpoint 正中心或附近 Hazard）
         if (RespawnManager.Instance != null)
         {
-            RespawnManager.Instance.SetCheckpoint(transform.position);
+            // 在 Checkpoint 上方 0.5 单位设置重生点，避免碰撞问题
+            Vector3 safeRespawnPos = transform.position + Vector3.up * 0.5f;
+            RespawnManager.Instance.SetCheckpoint(safeRespawnPos);
+            Debug.Log($"Checkpoint 激活: {transform.position}, 重生点: {safeRespawnPos}");
         }
         
         // 更新视觉

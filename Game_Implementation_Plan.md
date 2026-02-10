@@ -60,11 +60,15 @@
    - 当玩家接触垂直或近似垂直墙体并持续朝墙方向按住移动键时进入贴墙状态
    - 攀爬距离有限，进入贴墙后记录累计向上位移 `climbDistance`
    - 攀爬速度随 `climbDistance/maxClimbDistance` 逐步衰减到0
-   - 当攀爬速度到0后，开始向下滑落，滑落速度从 `slideSpeedStart` 缓慢增加到 `slideSpeedMax`
+   - 当攀爬速度接近0（`climbDistanceEpsilon`范围内）后，开始向下滑落，滑落速度从 `slideSpeedStart` 缓慢增加到 `slideSpeedMax`
    - 贴墙期间可跳跃触发墙跳，起跳垂直速度按剩余攀爬距离比例衰减：`jumpScale = clamp01(1 - climbDistance/maxClimbDistance)`
    - 攀爬距离越长，墙跳高度越低；当比例为0时无法起跳
-   - 墙跳带一个小幅水平离墙分量，便于脱离墙体
-   - 任何离墙、地面接触或停止贴墙输入都会退出贴墙状态并重置 `climbDistance`
+   - 墙跳带一个小幅水平离墙分量，便于脱离墙体；墙跳垂直速度可通过 `wallJumpVerticalMultiplier` 放大
+   - 处于攀爬状态时，空格优先触发墙跳，即使仍按住攀爬方向也会立即墙跳
+   - 任何离墙、地面接触或停止贴墙输入都会退出贴墙状态
+   - 同一面墙锁定：离开攀爬或墙跳后，会锁定当前墙体，未解锁前再次接触该墙无法攀爬/墙跳
+   - 解锁条件（优先级）：触碰其他墙 → 落地 → 计时到期（`wallLockDuration`）
+   - 墙体检测距离会自动取角色碰撞体半宽 + 余量，与 `wallCheckDistance` 取最大值
 
 ### 冲刺机制
 
@@ -306,8 +310,9 @@ Action Map: `Player`
 - 处理跳跃（空格键）
 - 处理冲刺（鼠标右键）
 - 地面检测
-- 状态机管理（Idle, Running, Jumping, Falling, Dashing）
+- 状态机管理（Idle, Running, Jumping, Falling, Dashing, Climbing）
 - 应用当前世界的速度倍率
+- 墙面攀爬与墙跳逻辑（含锁定与解锁）
 
 #### PlayerWorldSwitcher.cs
 - 监听鼠标左键切换输入
@@ -387,6 +392,12 @@ Action Map: `Player`
 - `climbSpeedStart`: 4.5 (攀爬初速度)
 - `slideSpeedStart`: 1.0 (滑落初速度)
 - `slideSpeedMax`: 2.5 (滑落最大速度)
+- `climbDistanceEpsilon`: 0.05 (攀爬接近耗尽判定阈值)
+- `wallCheckDistance`: 0.1 (墙体检测基础距离，实际会自动取更大值)
+- `wallCheckHeight`: 1.0 (墙体检测高度)
+- `wallJumpHorizontalSpeed`: 4.0 (墙跳水平速度)
+- `wallJumpVerticalMultiplier`: 1.4 (墙跳垂直速度倍率)
+- `wallLockDuration`: 1.0 (同墙锁定持续时间)
 
 ### WorldRules 参数
 
@@ -534,6 +545,15 @@ WorldB_Rules:
 - [ ] 世界指示器颜色切换是否正确
 - [ ] 冲刺冷却显示是否准确
 - [ ] 调试信息是否实时更新
+- [ ] 调试信息攀爬状态是否正确显示
+
+### 攀爬系统测试
+- [ ] 贴墙攀爬速度随距离衰减
+- [ ] 攀爬耗尽后是否开始滑落
+- [ ] 墙跳高度随攀爬距离衰减
+- [ ] 贴墙时空格是否优先触发墙跳
+- [ ] 同墙锁定是否生效（墙跳后/松开后不可再次攀爬）
+- [ ] 触碰其他墙是否解除锁定
 
 ### 关卡设计测试
 - [ ] 教学流程是否清晰
@@ -569,3 +589,123 @@ WorldB_Rules:
 游戏强调的是**规则理解和空间推理**，而非纯粹的反应速度和操作精度。
 
 **核心设计理念**：用世界切换构建有效路径，而非单纯避险。
+
+---
+
+## 关卡构建系统（2026年2月新增）
+
+### 系统概述
+
+项目已整合JSON驱动的关卡构建系统，可快速创建大型复杂关卡。系统特性：
+- **自动化生成**：从JSON数据自动生成Unity场景物体
+- **完整预制体库**：危险物、收集品、门、移动平台、特殊区域
+- **示例关卡**：镜潮城（MirrorTideCity）包含17个房间
+
+### 新增组件
+
+#### 核心脚本
+- `LevelBuilderFromJson.cs` - JSON关卡构建器
+- `PhaseShiftMover.cs` - 双世界相位移动平台
+- `Pickup.cs` - 收集品系统
+- `KeyDoor.cs` - 钥匙门系统
+- `WorldLockZone.cs` - 世界切换锁定区域
+- `OneWayDropPlatform.cs` - 单向掉落平台
+- `SimpleRotator.cs` - 收集品旋转动画
+
+#### 预制体生成工具
+- `HazardPrefabCreator.cs` - 一键生成所有危险物预制体
+- `PickupPrefabCreator.cs` - 一键生成所有收集品预制体
+- `ZonePrefabCreator.cs` - 一键生成所有区域预制体
+
+### 新增预制体
+
+#### 危险物（Hazard）
+- **Spike Both/A/B** - 尖刺（两世界/仅A/仅B）
+- **Laser A/B** - 激光束（仅A/仅B）
+- **Saw A/B** - 旋转锯齿（仅A/仅B）
+- **Thorn A/B** - 荆棘（仅A/仅B）
+- **Pit Killzone** - 掉落死亡区（两世界）
+
+#### 收集品（Pickup）
+- **Echo Shard** - 普通收集品（加分）
+- **Echo Crystal - Dash Reset** - 重置dash冷却
+- **Mirror Rune Key** - 钥匙（仅World B可见）
+
+#### 交互物（Door）
+- **Key Door - Mirror Rune** - 需要钥匙的门
+
+#### 移动平台（Moving Platform）
+- **Phase Shift Rail** - 双世界不同相位的移动平台
+
+#### 特殊区域（Zone）
+- **World Lock Zone** - 锁定世界切换的区域
+- **Wall Marker** - 墙壁装饰标记
+- **One Way Drop (B to A)** - World B固体，World A穿透
+
+### 快速开始
+
+1. 执行Unity菜单命令生成预制体：
+   - `Tools > Create Level Hazards`
+   - `Tools > Create Level Pickups`
+   - `Tools > Create Level Zones`
+
+2. 手动创建PhaseShiftRail预制体（添加SpriteRenderer + BoxCollider2D + PhaseShiftMover）
+
+3. 创建LevelRoot物体，挂载LevelBuilderFromJson组件
+
+4. 在Inspector中连接所有预制体槽
+
+5. 右键组件 → `Build Level` → 关卡自动生成
+
+### 系统特性
+
+#### 相位移动平台（Phase Shift Mover）
+- 在两个世界沿相同路径移动
+- 不同世界有不同相位偏移（0-1）
+- 切换世界时平台瞬间跳变位置
+- 创造"相位转移"解谜玩法
+
+#### 扩展的GameManager功能
+- `AddScore(int)` - 增加分数
+- `CollectKey(string)` - 收集钥匙
+- `HasKey(string)` - 检查是否拥有钥匙
+
+#### 扩展的WorldManager功能
+- `LockWorldSwitching(bool)` - 锁定/解锁世界切换
+- `SwitchWorld(WorldType)` - 强制切换到指定世界
+
+### 关卡数据格式
+
+```json
+{
+  "meta": {
+    "name": "关卡名称",
+    "roomSize": { "w": 32, "h": 18 }
+  },
+  "rooms": [
+    {
+      "id": "房间ID",
+      "origin": { "x": 0, "y": 0 },
+      "objects": [
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": { "x": 5, "y": 2 },
+          "size": { "w": 10, "h": 1 }
+        },
+        {
+          "type": "MovingPlatform",
+          "kind": "PhaseShiftRail",
+          "path": [{"x": 6, "y": 5}, {"x": 22, "y": 5}],
+          "speed": 2.2,
+          "worldPhase": { "A": 0.3, "B": 0.8 }
+        }
+      ]
+    }
+  ]
+}
+```
+
+### 详细文档
+
+完整使用指南请查看 **[LEVEL_SYSTEM_GUIDE.md](LEVEL_SYSTEM_GUIDE.md)**

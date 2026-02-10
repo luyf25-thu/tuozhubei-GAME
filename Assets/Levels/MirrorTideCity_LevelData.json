@@ -1,0 +1,1576 @@
+{
+  "meta": {
+    "name": "MirrorTideCity",
+    "version": 1,
+    "roomSize": {
+      "w": 32,
+      "h": 18
+    },
+    "coordinateSystem": "Room-local positions; builder adds room origin",
+    "worlds": {
+      "A": {
+        "gravityMultiplier": 1.0,
+        "speedMultiplier": 1.0
+      },
+      "B": {
+        "gravityMultiplier": 0.6,
+        "speedMultiplier": 0.6
+      }
+    },
+    "notes": [
+      "Platforms/hazards use 'kind' to decide which prefab/layer to use (A/B/Both).",
+      "Switching keeps velocity; this level relies on that behavior."
+    ]
+  },
+  "rooms": [
+    {
+      "id": "F1_Start",
+      "grid": {
+        "x": 0,
+        "y": 0
+      },
+      "origin": {
+        "x": 0,
+        "y": 0
+      },
+      "size": {
+        "w": 32,
+        "h": 18
+      },
+      "theme": "Forecourt / onboarding",
+      "objects": [
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 3,
+            "y": 1
+          },
+          "size": {
+            "w": 26,
+            "h": 1
+          },
+          "note": "Start floor"
+        },
+        {
+          "type": "Platform",
+          "kind": "A",
+          "pos": {
+            "x": 6,
+            "y": 4
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "note": "World A stairs"
+        },
+        {
+          "type": "Platform",
+          "kind": "A",
+          "pos": {
+            "x": 14,
+            "y": 7
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "note": "World A upper"
+        },
+        {
+          "type": "Platform",
+          "kind": "B",
+          "pos": {
+            "x": 20,
+            "y": 5
+          },
+          "size": {
+            "w": 8,
+            "h": 1
+          },
+          "note": "World B floating path"
+        },
+        {
+          "type": "Checkpoint",
+          "pos": {
+            "x": 5,
+            "y": 2
+          },
+          "note": "Checkpoint 1",
+          "kind": ""
+        },
+        {
+          "type": "Hazard",
+          "kind": "SpikeBoth",
+          "pos": {
+            "x": 16,
+            "y": 1.5
+          },
+          "size": {
+            "w": 4,
+            "h": 1
+          },
+          "note": "Soft intro hazard"
+        }
+      ]
+    },
+    {
+      "id": "F2_OffsetIntro",
+      "grid": {
+        "x": 1,
+        "y": 0
+      },
+      "origin": {
+        "x": 32,
+        "y": 0
+      },
+      "size": {
+        "w": 32,
+        "h": 18
+      },
+      "theme": "Forecourt / offset platforms",
+      "objects": [
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "size": {
+            "w": 10,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Platform",
+          "kind": "A",
+          "pos": {
+            "x": 14,
+            "y": 3
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "note": "Offset left in A"
+        },
+        {
+          "type": "Platform",
+          "kind": "B",
+          "pos": {
+            "x": 20,
+            "y": 3
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "note": "Offset right in B"
+        },
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 26,
+            "y": 6
+          },
+          "size": {
+            "w": 4,
+            "h": 1
+          },
+          "note": "Goal ledge"
+        },
+        {
+          "type": "Hazard",
+          "kind": "SpikeA",
+          "pos": {
+            "x": 12,
+            "y": 1.5
+          },
+          "size": {
+            "w": 4,
+            "h": 1
+          },
+          "note": "Only dangerous in A (threat layering)"
+        },
+        {
+          "type": "Checkpoint",
+          "pos": {
+            "x": 4,
+            "y": 2
+          },
+          "note": "Checkpoint 2 (safe practice)",
+          "kind": ""
+        }
+      ]
+    },
+    {
+      "id": "F3_VelocityDemo",
+      "grid": {
+        "x": 2,
+        "y": 0
+      },
+      "origin": {
+        "x": 64,
+        "y": 0
+      },
+      "size": {
+        "w": 32,
+        "h": 18
+      },
+      "theme": "Forecourt / velocity keep demo",
+      "objects": [
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "size": {
+            "w": 8,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 12,
+            "y": 1
+          },
+          "size": {
+            "w": 8,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 22,
+            "y": 1
+          },
+          "size": {
+            "w": 8,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Platform",
+          "kind": "B",
+          "pos": {
+            "x": 10,
+            "y": 8
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "note": "High ledge reachable via A jump then switch to B"
+        },
+        {
+          "type": "Pickup",
+          "kind": "EchoShard",
+          "pos": {
+            "x": 12,
+            "y": 9.5
+          },
+          "note": "Optional collectible",
+          "size": {
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "type": "Checkpoint",
+          "pos": {
+            "x": 3,
+            "y": 2
+          },
+          "note": "Checkpoint 3",
+          "kind": ""
+        },
+        {
+          "type": "Hazard",
+          "kind": "PitBoth",
+          "pos": {
+            "x": 0,
+            "y": -2
+          },
+          "size": {
+            "w": 32,
+            "h": 2
+          },
+          "note": "Room bounds killzone (fall)"
+        }
+      ]
+    },
+    {
+      "id": "W1_GateHall",
+      "grid": {
+        "x": 2,
+        "y": 1
+      },
+      "origin": {
+        "x": 64,
+        "y": 18
+      },
+      "size": {
+        "w": 32,
+        "h": 18
+      },
+      "theme": "Watergate / timing warmup",
+      "objects": [
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "size": {
+            "w": 28,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "MovingPlatform",
+          "kind": "PhaseShiftRail",
+          "pos": {
+            "x": 6,
+            "y": 5
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "path": [
+            {
+              "x": 6,
+              "y": 5
+            },
+            {
+              "x": 22,
+              "y": 5
+            }
+          ],
+          "speed": 2.2,
+          "worldPhase": {
+            "A": 0.3,
+            "B": 0.8
+          },
+          "note": "Same rail, different phase per world"
+        },
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 26,
+            "y": 9
+          },
+          "size": {
+            "w": 4,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Checkpoint",
+          "pos": {
+            "x": 4,
+            "y": 2
+          },
+          "note": "Checkpoint 4",
+          "kind": ""
+        }
+      ]
+    },
+    {
+      "id": "W2_DualThreat",
+      "grid": {
+        "x": 1,
+        "y": 1
+      },
+      "origin": {
+        "x": 32,
+        "y": 18
+      },
+      "size": {
+        "w": 32,
+        "h": 18
+      },
+      "theme": "Watergate / complementary threats",
+      "objects": [
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "size": {
+            "w": 28,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Hazard",
+          "kind": "LaserB",
+          "pos": {
+            "x": 8,
+            "y": 2.2
+          },
+          "size": {
+            "w": 16,
+            "h": 1
+          },
+          "note": "Only active in B"
+        },
+        {
+          "type": "Hazard",
+          "kind": "SawA",
+          "pos": {
+            "x": 12,
+            "y": 3.2
+          },
+          "size": {
+            "w": 4,
+            "h": 1
+          },
+          "note": "Only active in A"
+        },
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 6,
+            "y": 6
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 20,
+            "y": 6
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Checkpoint",
+          "pos": {
+            "x": 4,
+            "y": 2
+          },
+          "note": "Checkpoint 5",
+          "kind": ""
+        }
+      ]
+    },
+    {
+      "id": "W3_PhaseTransfer",
+      "grid": {
+        "x": 0,
+        "y": 1
+      },
+      "origin": {
+        "x": 0,
+        "y": 18
+      },
+      "size": {
+        "w": 32,
+        "h": 18
+      },
+      "theme": "Watergate / phase transfer intro",
+      "objects": [
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "size": {
+            "w": 10,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "MovingPlatform",
+          "kind": "PhaseShiftRail",
+          "pos": {
+            "x": 6,
+            "y": 6
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "path": [
+            {
+              "x": 6,
+              "y": 6
+            },
+            {
+              "x": 24,
+              "y": 6
+            }
+          ],
+          "speed": 2.0,
+          "worldPhase": {
+            "A": 0.2,
+            "B": 0.7
+          },
+          "note": "Air switch transfer lesson"
+        },
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 26,
+            "y": 10
+          },
+          "size": {
+            "w": 4,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Checkpoint",
+          "pos": {
+            "x": 4,
+            "y": 2
+          },
+          "note": "Checkpoint 6",
+          "kind": ""
+        },
+        {
+          "type": "Pickup",
+          "kind": "EchoCrystal_DashReset",
+          "pos": {
+            "x": 18,
+            "y": 8.5
+          },
+          "note": "Optional dash-reset pickup",
+          "size": {
+            "w": 0,
+            "h": 0
+          }
+        }
+      ]
+    },
+    {
+      "id": "W4_GateLoop",
+      "grid": {
+        "x": 0,
+        "y": 2
+      },
+      "origin": {
+        "x": 0,
+        "y": 36
+      },
+      "size": {
+        "w": 32,
+        "h": 18
+      },
+      "theme": "Watergate / loop & recovery",
+      "objects": [
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "size": {
+            "w": 28,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Platform",
+          "kind": "A",
+          "pos": {
+            "x": 6,
+            "y": 4
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "note": "A-only up route"
+        },
+        {
+          "type": "Platform",
+          "kind": "B",
+          "pos": {
+            "x": 6,
+            "y": 8
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "note": "B-only higher lookout route"
+        },
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 22,
+            "y": 6
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "note": "Return ledge"
+        },
+        {
+          "type": "Zone",
+          "kind": "OneWayDrop_BtoA",
+          "pos": {
+            "x": 10,
+            "y": 7
+          },
+          "size": {
+            "w": 4,
+            "h": 2
+          },
+          "note": "In B solid; in A pass-through (implement via collider swap)"
+        },
+        {
+          "type": "Checkpoint",
+          "pos": {
+            "x": 4,
+            "y": 2
+          },
+          "note": "Checkpoint 7",
+          "kind": ""
+        }
+      ]
+    },
+    {
+      "id": "W5_Exit",
+      "grid": {
+        "x": 1,
+        "y": 2
+      },
+      "origin": {
+        "x": 32,
+        "y": 36
+      },
+      "size": {
+        "w": 32,
+        "h": 18
+      },
+      "theme": "Watergate / exit connector",
+      "objects": [
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "size": {
+            "w": 14,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 18,
+            "y": 4
+          },
+          "size": {
+            "w": 12,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Hazard",
+          "kind": "SpikeBoth",
+          "pos": {
+            "x": 16,
+            "y": 1.5
+          },
+          "size": {
+            "w": 2,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Checkpoint",
+          "pos": {
+            "x": 3,
+            "y": 2
+          },
+          "note": "Checkpoint 8",
+          "kind": ""
+        }
+      ]
+    },
+    {
+      "id": "W6_ToGreenhouse",
+      "grid": {
+        "x": 2,
+        "y": 2
+      },
+      "origin": {
+        "x": 64,
+        "y": 36
+      },
+      "size": {
+        "w": 32,
+        "h": 18
+      },
+      "theme": "Connector / lift to tower",
+      "objects": [
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "size": {
+            "w": 28,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Platform",
+          "kind": "A",
+          "pos": {
+            "x": 10,
+            "y": 6
+          },
+          "size": {
+            "w": 4,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Platform",
+          "kind": "B",
+          "pos": {
+            "x": 18,
+            "y": 9
+          },
+          "size": {
+            "w": 4,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Checkpoint",
+          "pos": {
+            "x": 4,
+            "y": 2
+          },
+          "note": "Checkpoint 9 (before vertical section)",
+          "kind": ""
+        },
+        {
+          "type": "Door",
+          "kind": "KeyDoor_MirrorRune",
+          "pos": {
+            "x": 26,
+            "y": 2
+          },
+          "note": "Branch door to Archive (requires MirrorRuneKey)",
+          "size": {
+            "w": 1,
+            "h": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "BR_ArchiveEntrance",
+      "grid": {
+        "x": 3,
+        "y": 2
+      },
+      "origin": {
+        "x": 96,
+        "y": 36
+      },
+      "size": {
+        "w": 32,
+        "h": 18
+      },
+      "theme": "Branch / Archive",
+      "objects": [
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "size": {
+            "w": 28,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Platform",
+          "kind": "B",
+          "pos": {
+            "x": 8,
+            "y": 6
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Platform",
+          "kind": "A",
+          "pos": {
+            "x": 18,
+            "y": 6
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Pickup",
+          "kind": "MirrorRuneKey",
+          "pos": {
+            "x": 22,
+            "y": 7.5
+          },
+          "note": "Key only active/visible in B",
+          "size": {
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "type": "Checkpoint",
+          "pos": {
+            "x": 4,
+            "y": 2
+          },
+          "note": "Branch checkpoint",
+          "kind": ""
+        }
+      ]
+    },
+    {
+      "id": "G1_TowerBase",
+      "grid": {
+        "x": 2,
+        "y": 3
+      },
+      "origin": {
+        "x": 64,
+        "y": 54
+      },
+      "size": {
+        "w": 32,
+        "h": 18
+      },
+      "theme": "Greenhouse / climb introduction",
+      "objects": [
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "size": {
+            "w": 28,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Platform",
+          "kind": "A",
+          "pos": {
+            "x": 4,
+            "y": 4
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "note": "A stable approach"
+        },
+        {
+          "type": "Platform",
+          "kind": "B",
+          "pos": {
+            "x": 20,
+            "y": 6
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "note": "B high float perch"
+        },
+        {
+          "type": "Hazard",
+          "kind": "ThornB",
+          "pos": {
+            "x": 14,
+            "y": 2.0
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "note": "Only in B"
+        },
+        {
+          "type": "Checkpoint",
+          "pos": {
+            "x": 4,
+            "y": 2
+          },
+          "note": "Checkpoint 10",
+          "kind": ""
+        }
+      ]
+    },
+    {
+      "id": "G2_LongWall",
+      "grid": {
+        "x": 2,
+        "y": 4
+      },
+      "origin": {
+        "x": 64,
+        "y": 72
+      },
+      "size": {
+        "w": 32,
+        "h": 18
+      },
+      "theme": "Greenhouse / wall stamina visualization",
+      "objects": [
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "size": {
+            "w": 8,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 22,
+            "y": 1
+          },
+          "size": {
+            "w": 8,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Platform",
+          "kind": "A",
+          "pos": {
+            "x": 15,
+            "y": 9
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "note": "A ledge after wall climb"
+        },
+        {
+          "type": "Hazard",
+          "kind": "PitBoth",
+          "pos": {
+            "x": 0,
+            "y": -2
+          },
+          "size": {
+            "w": 32,
+            "h": 2
+          },
+          "note": ""
+        },
+        {
+          "type": "Zone",
+          "kind": "WallMarker",
+          "pos": {
+            "x": 10,
+            "y": 2
+          },
+          "size": {
+            "w": 1,
+            "h": 12
+          },
+          "note": "Decoration marker"
+        },
+        {
+          "type": "Checkpoint",
+          "pos": {
+            "x": 4,
+            "y": 2
+          },
+          "note": "Checkpoint 11",
+          "kind": ""
+        }
+      ]
+    },
+    {
+      "id": "G3_SwitchBrake",
+      "grid": {
+        "x": 2,
+        "y": 5
+      },
+      "origin": {
+        "x": 64,
+        "y": 90
+      },
+      "size": {
+        "w": 32,
+        "h": 18
+      },
+      "theme": "Greenhouse / switch to brake & precision land",
+      "objects": [
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "size": {
+            "w": 10,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 14,
+            "y": 4
+          },
+          "size": {
+            "w": 4,
+            "h": 1
+          },
+          "note": "Narrow landing"
+        },
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 24,
+            "y": 8
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Hazard",
+          "kind": "ThornA",
+          "pos": {
+            "x": 12,
+            "y": 3.0
+          },
+          "size": {
+            "w": 2,
+            "h": 1
+          },
+          "note": "A-only thorn to discourage staying A"
+        },
+        {
+          "type": "Checkpoint",
+          "pos": {
+            "x": 4,
+            "y": 2
+          },
+          "note": "Checkpoint 12",
+          "kind": ""
+        }
+      ]
+    },
+    {
+      "id": "G4_SideChamberKey",
+      "grid": {
+        "x": 1,
+        "y": 5
+      },
+      "origin": {
+        "x": 32,
+        "y": 90
+      },
+      "size": {
+        "w": 32,
+        "h": 18
+      },
+      "theme": "Greenhouse / side chamber (macro overlay puzzle)",
+      "objects": [
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "size": {
+            "w": 28,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Pickup",
+          "kind": "MirrorRuneKey",
+          "pos": {
+            "x": 8,
+            "y": 6.5
+          },
+          "note": "Alternative key spawn; only active in B",
+          "size": {
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "type": "Door",
+          "kind": "KeyDoor_MirrorRune",
+          "pos": {
+            "x": 24,
+            "y": 2
+          },
+          "note": "Door collider active in A; opens if key",
+          "size": {
+            "w": 1,
+            "h": 2
+          }
+        },
+        {
+          "type": "Checkpoint",
+          "pos": {
+            "x": 4,
+            "y": 2
+          },
+          "note": "Checkpoint 13",
+          "kind": ""
+        }
+      ]
+    },
+    {
+      "id": "T1_ThreatLayering",
+      "grid": {
+        "x": 0,
+        "y": 6
+      },
+      "origin": {
+        "x": 0,
+        "y": 108
+      },
+      "size": {
+        "w": 32,
+        "h": 18
+      },
+      "theme": "Tramline / high speed intro",
+      "objects": [
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "size": {
+            "w": 28,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "MovingPlatform",
+          "kind": "PhaseShiftRail",
+          "pos": {
+            "x": 4,
+            "y": 5
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "path": [
+            {
+              "x": 4,
+              "y": 5
+            },
+            {
+              "x": 26,
+              "y": 5
+            }
+          ],
+          "speed": 3.0,
+          "worldPhase": {
+            "A": 0.15,
+            "B": 0.65
+          },
+          "note": "First high-speed rail; minimal hazards"
+        },
+        {
+          "type": "Checkpoint",
+          "pos": {
+            "x": 4,
+            "y": 2
+          },
+          "note": "Checkpoint 14",
+          "kind": ""
+        }
+      ]
+    },
+    {
+      "id": "T2_TripleTransfer",
+      "grid": {
+        "x": 1,
+        "y": 6
+      },
+      "origin": {
+        "x": 32,
+        "y": 108
+      },
+      "size": {
+        "w": 32,
+        "h": 18
+      },
+      "theme": "Tramline / 3-step transfer chain",
+      "objects": [
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "size": {
+            "w": 8,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "MovingPlatform",
+          "kind": "PhaseShiftRail",
+          "pos": {
+            "x": 6,
+            "y": 6
+          },
+          "size": {
+            "w": 5,
+            "h": 1
+          },
+          "path": [
+            {
+              "x": 6,
+              "y": 6
+            },
+            {
+              "x": 18,
+              "y": 6
+            }
+          ],
+          "speed": 3.2,
+          "worldPhase": {
+            "A": 0.25,
+            "B": 0.75
+          },
+          "note": "Step 1"
+        },
+        {
+          "type": "Pickup",
+          "kind": "EchoCrystal_DashReset",
+          "pos": {
+            "x": 12,
+            "y": 8.5
+          },
+          "note": "Dash reset mid-air",
+          "size": {
+            "w": 0,
+            "h": 0
+          }
+        },
+        {
+          "type": "MovingPlatform",
+          "kind": "PhaseShiftRail",
+          "pos": {
+            "x": 14,
+            "y": 9
+          },
+          "size": {
+            "w": 5,
+            "h": 1
+          },
+          "path": [
+            {
+              "x": 14,
+              "y": 9
+            },
+            {
+              "x": 26,
+              "y": 9
+            }
+          ],
+          "speed": 3.0,
+          "worldPhase": {
+            "A": 0.55,
+            "B": 0.1
+          },
+          "note": "Step 2 (phase inverted)"
+        },
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 26,
+            "y": 12
+          },
+          "size": {
+            "w": 4,
+            "h": 1
+          },
+          "note": "Goal"
+        },
+        {
+          "type": "Hazard",
+          "kind": "SawA",
+          "pos": {
+            "x": 10,
+            "y": 2.5
+          },
+          "size": {
+            "w": 4,
+            "h": 1
+          },
+          "note": "A-only"
+        },
+        {
+          "type": "Checkpoint",
+          "pos": {
+            "x": 3,
+            "y": 2
+          },
+          "note": "Checkpoint 15",
+          "kind": ""
+        }
+      ]
+    },
+    {
+      "id": "T3_RouteChoice",
+      "grid": {
+        "x": 2,
+        "y": 6
+      },
+      "origin": {
+        "x": 64,
+        "y": 108
+      },
+      "size": {
+        "w": 32,
+        "h": 18
+      },
+      "theme": "Tramline / two-route expression",
+      "objects": [
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "size": {
+            "w": 10,
+            "h": 1
+          },
+          "note": "Split start"
+        },
+        {
+          "type": "Platform",
+          "kind": "A",
+          "pos": {
+            "x": 4,
+            "y": 6
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "note": "Left route A-only"
+        },
+        {
+          "type": "Platform",
+          "kind": "A",
+          "pos": {
+            "x": 12,
+            "y": 10
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "note": "Left route continuation"
+        },
+        {
+          "type": "Platform",
+          "kind": "B",
+          "pos": {
+            "x": 18,
+            "y": 5
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "note": "Right route B-only"
+        },
+        {
+          "type": "Platform",
+          "kind": "B",
+          "pos": {
+            "x": 24,
+            "y": 8
+          },
+          "size": {
+            "w": 6,
+            "h": 1
+          },
+          "note": "Right route continuation"
+        },
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 26,
+            "y": 12
+          },
+          "size": {
+            "w": 4,
+            "h": 1
+          },
+          "note": "Join"
+        },
+        {
+          "type": "Checkpoint",
+          "pos": {
+            "x": 4,
+            "y": 2
+          },
+          "note": "Checkpoint 16",
+          "kind": ""
+        }
+      ]
+    },
+    {
+      "id": "T4_ToForge",
+      "grid": {
+        "x": 3,
+        "y": 6
+      },
+      "origin": {
+        "x": 96,
+        "y": 108
+      },
+      "size": {
+        "w": 32,
+        "h": 18
+      },
+      "theme": "Connector / to forge",
+      "objects": [
+        {
+          "type": "Platform",
+          "kind": "Both",
+          "pos": {
+            "x": 2,
+            "y": 1
+          },
+          "size": {
+            "w": 28,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Hazard",
+          "kind": "SpikeBoth",
+          "pos": {
+            "x": 14,
+            "y": 1.5
+          },
+          "size": {
+            "w": 4,
+            "h": 1
+          },
+          "note": ""
+        },
+        {
+          "type": "Checkpoint",
+          "pos": {
+            "x": 4,
+            "y": 2
+          },
+          "note": "Checkpoint 17",
+          "kind": ""
+        }
+      ]
+    }
+  ]
+}
