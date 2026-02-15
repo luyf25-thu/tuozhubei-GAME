@@ -13,6 +13,69 @@ public class InputManager : MonoBehaviour
     private InputAction switchWorldAction;
     private InputAction dashAction;
 
+    // 以下方法用于与新输入系统的 UnityEvent 直接绑定
+    // 可在 PlayerInput 的 Actions -> (对应 Action) -> "Performed" 事件中绑定到这些方法
+    public void OnMove(InputAction.CallbackContext context)
+    {
+        if (playerController == null)
+            return;
+
+        Vector2 v = Vector2.zero;
+        try { v = context.ReadValue<Vector2>(); } catch { v = Vector2.right * context.ReadValue<float>(); }
+        playerController.SetMovementInput(v.x);
+    }
+
+    public void OnJump(InputAction.CallbackContext context)
+    {
+        if (context.performed && playerController != null)
+        {
+            playerController.Jump();
+        }
+    }
+
+    public void OnSwitchWorld(InputAction.CallbackContext context)
+    {
+        if (context.performed && worldSwitcher != null)
+        {
+            worldSwitcher.SwitchWorld();
+        }
+    }
+
+    public void OnDash(InputAction.CallbackContext context)
+    {
+        if (context.performed && playerController != null)
+        {
+            playerController.Dash();
+        }
+    }
+
+    private void OnQuickRespawn(InputAction.CallbackContext context)
+    {
+        QuickRespawn();
+    }
+
+    private void OnPause(InputAction.CallbackContext context)
+    {
+        TogglePause();
+    }
+
+    // Public methods for Inspector binding (第二种方法)
+    public void QuickRespawn()
+    {
+        if (RespawnManager.Instance != null)
+        {
+            RespawnManager.Instance.TriggerDeath("QuickRespawn");
+        }
+    }
+
+    public void TogglePause()
+    {
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.TogglePause();
+        }
+    }
+
     private void Awake()
     {
         // 如果没有手动设置，尝试自动获取
@@ -73,6 +136,24 @@ public class InputManager : MonoBehaviour
             if (playerController != null)
             {
                 playerController.Dash();
+            }
+        }
+
+        // 快速重生 (R)
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            if (RespawnManager.Instance != null)
+            {
+                RespawnManager.Instance.TriggerDeath("QuickRespawn");
+            }
+        }
+
+        // 暂停/菜单 (ESC)
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.TogglePause();
             }
         }
     }
