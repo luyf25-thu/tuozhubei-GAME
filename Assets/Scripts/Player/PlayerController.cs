@@ -1,8 +1,13 @@
+using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    private static readonly int AnimatorStateParam = Animator.StringToHash("State");
+
     [Header("移动参数")]
     [SerializeField] private float baseSpeed = 5f;
     [SerializeField] private float jumpForce = 10f;
@@ -34,8 +39,30 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private DashEffect dashEffect;
     [SerializeField] private AudioSource audioSource;
+    [SerializeField] private Animator animator;
+    [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private AudioClip jumpSound;
     [SerializeField] private AudioClip dashSound;
+
+    [Header("动画参数")]
+    [SerializeField] private bool useSpriteSequenceAnimation = true;
+    [SerializeField] private bool useBuiltInInputFallback = true;
+    [SerializeField] private string idleFramesFolder = "Animations/Clips/cat idling";
+    [SerializeField] private string runningFramesFolder = "Animations/Clips/cat running";
+    [SerializeField] private string jumpingFramesFolder = "Animations/Clips/cat jumping";
+    [SerializeField] private float spriteSequenceFps = 10f;
+    [SerializeField] private Vector2 spritePivot = new Vector2(0.5f, 0.08f);
+    [SerializeField] private float spritePixelsPerUnit = 100f;
+    [SerializeField] private bool trimTransparentBounds = true;
+    [SerializeField] private byte alphaThreshold = 8;
+    [SerializeField] private bool forceBottomPivot = true;
+    [SerializeField] private int bottomCropPixels = 10;
+    [SerializeField] private float runningInputThreshold = 0.1f;
+    [SerializeField] private float runningVelocityThreshold = 0.05f;
+    [SerializeField] private string idleAnimationStateName = "idle animation";
+    [SerializeField] private string runningAnimationStateName = "running animation";
+    [SerializeField] private string jumpingAnimationStateName = "jumping animation";
+    [SerializeField] private bool enableAnimationDebugLogs;
     
     // 状态变量
     private float movementInput;
@@ -43,6 +70,20 @@ public class PlayerController : MonoBehaviour
     private bool isGrounded;
     private bool wasGrounded;
     private bool loggedGroundCheckMissing;
+    private string lastLocomotionAnimationStateName;
+    private Sprite[] idleFrames;
+    private Sprite[] runningFrames;
+    private Sprite[] jumpingFrames;
+    private PlayerState lastSpriteAnimationState;
+    private int spriteFrameIndex;
+    private float spriteFrameTimer;
+    private bool loggedMissingIdleFrames;
+    private bool loggedMissingRunningFrames;
+    private bool loggedMissingJumpingFrames;
+    private PlayerState lastLoggedAnimationState;
+    private bool animatorStateParameterChecked;
+    private bool animatorHasStateParameter;
+    private bool loggedMissingAnimatorStateParameter;
     
     // 冲刺状态
     private bool isDashing;
@@ -74,6 +115,17 @@ public class PlayerController : MonoBehaviour
         if (audioSource == null)
             audioSource = GetComponent<AudioSource>();
 
+        if (animator == null)
+            animator = GetComponent<Animator>();
+
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponent<SpriteRenderer>();
+
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+
+        LoadSpriteSequenceFramesIfNeeded();
+
         ResolveGroundCheck();
         ResolveGroundLayer();
         AdjustGroundCheckPosition();
@@ -81,6 +133,8 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        UpdateMovementInputFallback();
+
         // 地面检测
         wasGrounded = isGrounded;
         if (groundCheck != null)
@@ -161,6 +215,7 @@ public class PlayerController : MonoBehaviour
         
         // 更新状态
         UpdateState();
+        UpdateAnimation();
     }
 
     void FixedUpdate()
@@ -193,6 +248,50 @@ public class PlayerController : MonoBehaviour
     public void SetMovementInput(float input)
     {
         movementInput = input;
+    }
+
+    private void UpdateMovementInputFallback()
+    {
+        if (!useBuiltInInputFallback)
+        {
+            return;
+        }
+
+        float rawAxis = Input.GetAxisRaw("Horizontal");
+        if (Mathf.Abs(rawAxis) > 0.01f)
+        {
+            movementInput = rawAxis;
+            return;
+        }
+
+        if (Keyboard.current != null)
+        {
+            if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed)
+            {
+                movementInput = 1f;
+                return;
+            }
+
+            if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed)
+            {
+                movementInput = -1f;
+                return;
+            }
+        }
+
+        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+        {
+            movementInput = 1f;
+            return;
+        }
+
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+        {
+            movementInput = -1f;
+            return;
+        }
+
+        movementInput = 0f;
     }
 
     private void ResolveGroundCheck()
@@ -359,6 +458,10 @@ public class PlayerController : MonoBehaviour
 
     private void UpdateState()
     {
+        float horizontalVelocity = rb != null ? Mathf.Abs(rb.velocity.x) : 0f;
+        bool hasRunningInput = Mathf.Abs(movementInput) > runningInputThreshold;
+        bool hasHorizontalVelocity = horizontalVelocity > runningVelocityThreshold;
+
         if (isDashing)
         {
             currentState = PlayerState.Dashing;
@@ -371,7 +474,7 @@ public class PlayerController : MonoBehaviour
         {
             currentState = rb.velocity.y > 0 ? PlayerState.Jumping : PlayerState.Falling;
         }
-        else if (Mathf.Abs(movementInput) > 0.1f)
+        else if (hasRunningInput || hasHorizontalVelocity)
         {
             currentState = PlayerState.Running;
         }
@@ -379,6 +482,320 @@ public class PlayerController : MonoBehaviour
         {
             currentState = PlayerState.Idle;
         }
+    }
+
+    private void UpdateAnimation()
+    {
+        UpdateAnimatorStateParameter();
+
+        if (enableAnimationDebugLogs && lastLoggedAnimationState != currentState)
+        {
+            lastLoggedAnimationState = currentState;
+            Debug.Log($"Animation State => {currentState}", this);
+        }
+
+        if (TryUpdateSpriteSequenceAnimation())
+        {
+            return;
+        }
+
+        string targetAnimationStateName = GetLocomotionAnimationStateName(currentState);
+        if (string.IsNullOrEmpty(targetAnimationStateName) || targetAnimationStateName == lastLocomotionAnimationStateName)
+        {
+            return;
+        }
+
+        lastLocomotionAnimationStateName = targetAnimationStateName;
+        if (animator == null)
+        {
+            return;
+        }
+
+        animator.Play(targetAnimationStateName);
+    }
+
+    private void UpdateAnimatorStateParameter()
+    {
+        if (animator == null)
+        {
+            return;
+        }
+
+        if (!animatorStateParameterChecked)
+        {
+            animatorStateParameterChecked = true;
+            AnimatorControllerParameter[] parameters = animator.parameters;
+            for (int i = 0; i < parameters.Length; i++)
+            {
+                if (parameters[i].type == AnimatorControllerParameterType.Int && parameters[i].nameHash == AnimatorStateParam)
+                {
+                    animatorHasStateParameter = true;
+                    break;
+                }
+            }
+        }
+
+        if (!animatorHasStateParameter)
+        {
+            if (!loggedMissingAnimatorStateParameter)
+            {
+                loggedMissingAnimatorStateParameter = true;
+                Debug.LogWarning("Animator 缺少 int 参数 'State'，已跳过 SetInteger。请执行 Tools > Player > Force Setup Animator。", this);
+            }
+            return;
+        }
+
+        animator.SetInteger(AnimatorStateParam, GetAnimatorStateCode(currentState));
+    }
+
+    private static int GetAnimatorStateCode(PlayerState state)
+    {
+        if (state == PlayerState.Running)
+        {
+            return 1;
+        }
+
+        if (state == PlayerState.Jumping || state == PlayerState.Falling)
+        {
+            return 2;
+        }
+
+        return 0;
+    }
+
+    private string GetLocomotionAnimationStateName(PlayerState state)
+    {
+        if (state == PlayerState.Jumping || state == PlayerState.Falling)
+        {
+            return jumpingAnimationStateName;
+        }
+
+        if (state == PlayerState.Running)
+        {
+            return runningAnimationStateName;
+        }
+
+        return idleAnimationStateName;
+    }
+
+    private void LoadSpriteSequenceFramesIfNeeded()
+    {
+        if (!useSpriteSequenceAnimation)
+        {
+            return;
+        }
+
+        if (idleFrames == null || idleFrames.Length == 0)
+        {
+            idleFrames = LoadSpritesFromAssetsFolder(idleFramesFolder);
+            if ((idleFrames == null || idleFrames.Length == 0) && !loggedMissingIdleFrames)
+            {
+                loggedMissingIdleFrames = true;
+                Debug.LogWarning($"Idle 序列帧加载失败，目录：Assets/{idleFramesFolder}", this);
+            }
+        }
+
+        if (runningFrames == null || runningFrames.Length == 0)
+        {
+            runningFrames = LoadSpritesFromAssetsFolder(runningFramesFolder);
+            if ((runningFrames == null || runningFrames.Length == 0) && !loggedMissingRunningFrames)
+            {
+                loggedMissingRunningFrames = true;
+                Debug.LogWarning($"Running 序列帧加载失败，目录：Assets/{runningFramesFolder}", this);
+            }
+        }
+
+        if (jumpingFrames == null || jumpingFrames.Length == 0)
+        {
+            jumpingFrames = LoadSpritesFromAssetsFolder(jumpingFramesFolder);
+            if ((jumpingFrames == null || jumpingFrames.Length == 0) && !loggedMissingJumpingFrames)
+            {
+                loggedMissingJumpingFrames = true;
+                Debug.LogWarning($"Jumping 序列帧加载失败，目录：Assets/{jumpingFramesFolder}", this);
+            }
+        }
+    }
+
+    private bool TryUpdateSpriteSequenceAnimation()
+    {
+        if (!useSpriteSequenceAnimation || spriteRenderer == null)
+        {
+            return false;
+        }
+
+        Sprite[] frames = GetFramesForState(currentState);
+        if (frames == null || frames.Length == 0)
+        {
+            return false;
+        }
+
+        if (lastSpriteAnimationState != currentState)
+        {
+            lastSpriteAnimationState = currentState;
+            spriteFrameIndex = 0;
+            spriteFrameTimer = 0f;
+            spriteRenderer.sprite = frames[spriteFrameIndex];
+            if (enableAnimationDebugLogs)
+            {
+                Debug.Log($"Sprite Sequence => {currentState}, frames={frames.Length}", this);
+            }
+            return true;
+        }
+
+        float frameDuration = 1f / Mathf.Max(1f, spriteSequenceFps);
+        spriteFrameTimer += Time.deltaTime;
+
+        while (spriteFrameTimer >= frameDuration)
+        {
+            spriteFrameTimer -= frameDuration;
+            spriteFrameIndex = (spriteFrameIndex + 1) % frames.Length;
+            spriteRenderer.sprite = frames[spriteFrameIndex];
+        }
+
+        return true;
+    }
+
+    private Sprite[] GetFramesForState(PlayerState state)
+    {
+        if (state == PlayerState.Jumping || state == PlayerState.Falling)
+        {
+            return jumpingFrames;
+        }
+
+        if (state == PlayerState.Running)
+        {
+            return runningFrames;
+        }
+
+        return idleFrames;
+    }
+
+    private Sprite[] LoadSpritesFromAssetsFolder(string assetsRelativeFolder)
+    {
+        if (string.IsNullOrWhiteSpace(assetsRelativeFolder))
+        {
+            return null;
+        }
+
+        string fullFolder = Path.Combine(Application.dataPath, assetsRelativeFolder.Replace('/', Path.DirectorySeparatorChar));
+        if (!Directory.Exists(fullFolder))
+        {
+            return null;
+        }
+
+        string[] files = Directory.GetFiles(fullFolder, "*.png", SearchOption.TopDirectoryOnly);
+        if (files.Length == 0)
+        {
+            return null;
+        }
+
+        List<string> orderedFiles = new List<string>(files);
+        orderedFiles.Sort((a, b) => CompareFrameFileNames(Path.GetFileNameWithoutExtension(a), Path.GetFileNameWithoutExtension(b)));
+
+        List<Sprite> sprites = new List<Sprite>(orderedFiles.Count);
+        foreach (string file in orderedFiles)
+        {
+            byte[] bytes = File.ReadAllBytes(file);
+            Texture2D texture = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            if (!texture.LoadImage(bytes))
+            {
+                continue;
+            }
+
+            texture.name = Path.GetFileNameWithoutExtension(file);
+            Vector2 clampedPivot = new Vector2(Mathf.Clamp01(spritePivot.x), Mathf.Clamp01(spritePivot.y));
+            if (forceBottomPivot)
+            {
+                clampedPivot.y = 0f;
+            }
+
+            float ppu = Mathf.Max(1f, spritePixelsPerUnit);
+            Rect spriteRect = trimTransparentBounds ? CalculateOpaqueRect(texture, alphaThreshold) : new Rect(0f, 0f, texture.width, texture.height);
+            if (bottomCropPixels > 0)
+            {
+                float maxCrop = Mathf.Max(0f, spriteRect.height - 1f);
+                float crop = Mathf.Clamp(bottomCropPixels, 0f, maxCrop);
+                spriteRect.y += crop;
+                spriteRect.height -= crop;
+            }
+
+            Sprite sprite = Sprite.Create(texture, spriteRect, clampedPivot, ppu);
+            sprite.name = texture.name;
+            sprites.Add(sprite);
+        }
+
+        return sprites.ToArray();
+    }
+
+    private static int CompareFrameFileNames(string nameA, string nameB)
+    {
+        int numberA = ExtractLeadingNumber(nameA);
+        int numberB = ExtractLeadingNumber(nameB);
+        if (numberA != numberB)
+        {
+            return numberA.CompareTo(numberB);
+        }
+
+        return string.Compare(nameA, nameB, System.StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static int ExtractLeadingNumber(string fileName)
+    {
+        int value = 0;
+        bool hasDigit = false;
+        for (int i = 0; i < fileName.Length; i++)
+        {
+            if (!char.IsDigit(fileName[i]))
+            {
+                if (hasDigit)
+                {
+                    break;
+                }
+
+                continue;
+            }
+
+            hasDigit = true;
+            value = (value * 10) + (fileName[i] - '0');
+        }
+
+        return hasDigit ? value : int.MaxValue;
+    }
+
+    private static Rect CalculateOpaqueRect(Texture2D texture, byte threshold)
+    {
+        Color32[] pixels = texture.GetPixels32();
+        int width = texture.width;
+        int height = texture.height;
+
+        int minX = width;
+        int minY = height;
+        int maxX = -1;
+        int maxY = -1;
+
+        for (int y = 0; y < height; y++)
+        {
+            int rowOffset = y * width;
+            for (int x = 0; x < width; x++)
+            {
+                if (pixels[rowOffset + x].a <= threshold)
+                {
+                    continue;
+                }
+
+                if (x < minX) minX = x;
+                if (y < minY) minY = y;
+                if (x > maxX) maxX = x;
+                if (y > maxY) maxY = y;
+            }
+        }
+
+        if (maxX < minX || maxY < minY)
+        {
+            return new Rect(0f, 0f, width, height);
+        }
+
+        return new Rect(minX, minY, (maxX - minX) + 1, (maxY - minY) + 1);
     }
 
     // 用于调试的可视化

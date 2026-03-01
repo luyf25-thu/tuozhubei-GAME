@@ -6,6 +6,32 @@ using UnityEngine.TestTools;
 
 public class PlayerClimbTests
 {
+    [Test]
+    public void IdleState_MapsToIdleAnimation()
+    {
+        GameObject player = new GameObject("Player");
+        PlayerController controller = player.AddComponent<PlayerController>();
+
+        SetPrivateField(controller, "idleAnimationStateName", "idle animation");
+
+        string mapped = InvokeLocomotionAnimationName(controller, PlayerController.PlayerState.Idle);
+
+        Assert.AreEqual("idle animation", mapped);
+    }
+
+    [Test]
+    public void RunningState_MapsToRunningAnimation()
+    {
+        GameObject player = new GameObject("Player");
+        PlayerController controller = player.AddComponent<PlayerController>();
+
+        SetPrivateField(controller, "runningAnimationStateName", "running animation");
+
+        string mapped = InvokeLocomotionAnimationName(controller, PlayerController.PlayerState.Running);
+
+        Assert.AreEqual("running animation", mapped);
+    }
+
     [UnityTest]
     public IEnumerator ClimbIncreasesVerticalVelocityWhileTouchingWall()
     {
@@ -249,5 +275,14 @@ public class PlayerClimbTests
         FieldInfo field = target.GetType().GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
         Assert.NotNull(field, $"Missing field '{fieldName}' on {target.GetType().Name}.");
         field.SetValue(target, value);
+    }
+
+    private static string InvokeLocomotionAnimationName(PlayerController controller, PlayerController.PlayerState state)
+    {
+        MethodInfo method = controller.GetType().GetMethod("GetLocomotionAnimationStateName", BindingFlags.Instance | BindingFlags.NonPublic);
+        Assert.NotNull(method, "Missing method 'GetLocomotionAnimationStateName' on PlayerController.");
+
+        object result = method.Invoke(controller, new object[] { state });
+        return result as string;
     }
 }

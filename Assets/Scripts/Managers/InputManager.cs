@@ -37,12 +37,17 @@ public class InputManager : MonoBehaviour
     {
         // 使用传统输入系统（临时方案，建议后续切换到新输入系统）
         
-        // 移动输入 (A/D)
-        float horizontal = 0f;
-        if (Input.GetKey(KeyCode.D))
-            horizontal = 1f;
-        else if (Input.GetKey(KeyCode.A))
-            horizontal = -1f;
+        // 移动输入（优先使用 Horizontal 轴，兼容 A/D 与 方向键）
+        float horizontal = Input.GetAxisRaw("Horizontal");
+
+        // 兜底：确保在非常规输入配置下 A/D 仍可用
+        if (Mathf.Abs(horizontal) < 0.01f)
+        {
+            if (Input.GetKey(KeyCode.D))
+                horizontal = 1f;
+            else if (Input.GetKey(KeyCode.A))
+                horizontal = -1f;
+        }
         
         if (playerController != null)
         {
